@@ -6,6 +6,10 @@ using System.Collections;
 
 public class WeatherService : MonoBehaviour{
 
+
+    public float changeRate;
+    private float changeCooldown;
+
     static WeatherService _instance;
     public static WeatherService Instance
     {
@@ -22,7 +26,7 @@ public class WeatherService : MonoBehaviour{
     public float Temperature { get; private set; }
     public string MainWeatherImage { get; private set; }
 
-    private void OnTimedEvent(object source, ElapsedEventArgs e)
+    private void OnTimedEvent()
     {
         WWW req = new WWW("http://api.openweathermap.org/data/2.5/weather?q=Orsay,fr&units=metric&appid="+weatherApiKey);
 
@@ -53,16 +57,20 @@ public class WeatherService : MonoBehaviour{
 
         _instance = this;
 
-        Timer aTimer = new Timer();
-        aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
-        aTimer.Interval = 60000;
-        aTimer.Enabled = true;
-
-        OnTimedEvent(null, null);
+        changeCooldown = 0f;
+        
     }
 	
 	// Update is called once per frame
 	void Update () {
-	
-	}
+        if (changeCooldown > 0)
+        {
+            changeCooldown -= Time.deltaTime;
+        }
+        else
+        {
+            changeCooldown = changeRate;
+            OnTimedEvent();
+        }
+    }
 }
